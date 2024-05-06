@@ -33,34 +33,28 @@
         });
 
 
-        /* Using Websocket to get data realtime */
-        let socket = new WebSocket("ws://localhost:5001/read-message?session=abc");
+        var webSocketFactory = {
+          connectionTries: 3,
+          connect: function(url) {
+            var ws = new WebSocket(url);
+            ws.addEventListener("error", e => {
+              // readyState === 3 is CLOSED
+              if (e.target.readyState === 3) {
+                this.connectionTries--;
 
-        socket.onopen = function(e) {
-          alert("[open] Connection established");
-          alert("Sending to server");
-          socket.send("My name is John");
-        };
+                if (this.connectionTries > 0) {
+                  setTimeout(() => this.connect(url), 5000);
+                } else {
+                  throw new Error("Maximum number of connection trials has been reached");
+                }
 
-        socket.onmessage = function(event) {
-          alert(`[message] Data received from server: ${event.data}`);
-        };
-
-        socket.onclose = function(event) {
-          if (event.wasClean) {
-            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-          } else {
-            // e.g. server process killed or network down
-            // event.code is usually 1006 in this case
-            alert('[close] Connection died');
+              }
+            });
           }
         };
 
-        socket.onerror = function(error) {
-          alert(`[error]`);
-          console.log(error);
-        };
-
+        var webSocket = webSocketFactory.connect("ws://localhost:5001");
+        console.log(webSocket);
     </script>
     <script src="<?= base_url('assets/ui/') ?>js/custom.js"></script>
     <!-- END GLOBAL MANDATORY SCRIPTS -->

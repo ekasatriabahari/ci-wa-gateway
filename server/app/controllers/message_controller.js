@@ -71,32 +71,3 @@ exports.sendBulkMessage = async (req, res, next) => {
     console.log(error)
   }
 };
-
-exports.getReceivedMessage = async (req, res, next) => {
-
-  try {
-    const sessionId =
-      req.body.session || req.query.session || req.headers.session;
-      // if (!sessionId) {
-      //   return res.status(400).json({
-      //     status: false,
-      //     data: {
-      //       error: "Session Not Found",
-      //     },
-      //   });
-      // }
-      // await whatsapp.readMessage({
-      //   sessionId: sessionId,
-      //   key: msg.key,
-      // });
-      res.status(200).json({
-        status: true,
-        data: {
-          message: "pesan terbaca",
-        },
-      });
-  } catch (error) {
-    next(error);
-    console.log(error)
-  }
-}

@@ -8,6 +8,7 @@ const path = require("path");
 const MainRouter = require("./app/routers");
 const errorHandlerMiddleware = require("./app/middlewares/error_middleware");
 const whatsapp = require("wa-multi-session");
+const { Server } = require('socket.io');
 
 config();
 
@@ -33,6 +34,19 @@ server.on("listening", () => console.log("APP IS RUNNING ON PORT " + PORT));
 
 server.listen(PORT);
 
+// initiate socket.io server
+const io = new Server(server);
+io.on('connection', (socket) => {
+  socket.on('message', (chats) => {
+    console.log(chats);
+  });
+});
+
+whatsapp.onMessageReceived((msg) => {
+  console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
+  // return JSON.stringify(msg);
+});
+
 whatsapp.onConnected((session) => {
   console.log("connected => ", session);
 });
@@ -43,11 +57,6 @@ whatsapp.onDisconnected((session) => {
 
 whatsapp.onConnecting((session) => {
   console.log("connecting => ", session);
-});
-
-whatsapp.onMessageReceived((msg) => {
-  console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
-  // JSON.stringify(msg);
 });
 
 whatsapp.loadSessionsFromStorage();
