@@ -32,19 +32,22 @@ app.set("port", PORT);
 var server = http.createServer(app);
 server.on("listening", () => console.log("APP IS RUNNING ON PORT " + PORT));
 
-server.listen(PORT);
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 // initiate socket.io server
 const io = new Server(server);
 io.on('connection', (socket) => {
-  socket.on('message', (chats) => {
-    console.log(chats);
-  });
+  console.log('socket.io connected')
 });
 
+server.listen(PORT);
+
 whatsapp.onMessageReceived((msg) => {
+  const msgObj = JSON.parse(JSON.stringify(msg));
   console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
-  // return JSON.stringify(msg);
+  io.sockets.emit('chat', msgObj);
 });
 
 whatsapp.onConnected((session) => {
